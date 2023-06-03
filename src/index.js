@@ -6,7 +6,20 @@ import App from 'components/App';
 
 const theme = {
   colors: {
-    //
+    label: '#000000',
+    item: {
+      border: '#ccc',
+    },
+    input: {
+      border: '#ccc',
+    },
+    button: {
+      background: {
+        default: '#3f51b5',
+        hover: '#303f9f',
+      },
+      text: '#fff',
+    },
   },
 };
 
