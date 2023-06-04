@@ -1,5 +1,5 @@
 // ContactList.jsx
-import React from 'react';
+
 import ContactListItem from '../ContactListItem';
 import PropTypes from 'prop-types';
 import { List } from './ContactList.styled';

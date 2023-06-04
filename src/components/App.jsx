@@ -1,50 +1,28 @@
 // App.jsx
 
-import React, { Component } from 'react';
+import { useState } from 'react';
 import { nanoid } from 'nanoid';
 import ContactForm from './ContactForm';
 import ContactList from './ContactList';
 import Filter from './Filter';
 import Layout from './layout';
 import { MainTitle, SubTitle } from './Titles';
+import useLocalStorage from 'hooks/useLocalStorage';
 
-class App extends Component {
-  state = {
-    contacts: [],
-    filter: '',
+const App = () => {
+  const [contacts, setContacts] = useLocalStorage('contacts', [
+    { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+    { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+    { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+    { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+  ]);
+  const [filter, setFilter] = useState('');
+
+  const handleSearchInputChange = ({ target: { name, value } }) => {
+    setFilter(value);
   };
 
-  componentDidMount() {
-    const contacts = localStorage.getItem('contacts');
-    if (contacts) {
-      this.setState({ contacts: JSON.parse(contacts) });
-    } else {
-      this.setState({
-        contacts: [
-          { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-          { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-          { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-          { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-        ],
-      });
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.contacts !== this.state.contacts) {
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-    }
-  }
-
-  handleSearchInputChange = ({ target: { name, value } }) => {
-    this.setState({
-      [name]: value,
-    });
-  };
-
-  valueExists = (key, value) => {
-    const { contacts } = this.state;
-
+  const valueExists = (key, value) => {
     if (key === 'name') {
       const normalizedValue = value.toLowerCase();
       return contacts.find(
@@ -55,16 +33,14 @@ class App extends Component {
     return contacts.find(contact => contact[key] === value);
   };
 
-  handleAddContact = (name, number) => {
-    const { valueExists } = this;
-
+  const handleAddContact = (name, number) => {
     if (valueExists('name', name)) {
-      alert(`${name} is already in contacts.`);
+      alert(`${name} вже є в контактах.`);
       return false;
     }
 
     if (valueExists('number', number)) {
-      alert(`Number ${number} is already in use.`);
+      alert(`Номер ${number} вже використовується.`);
       return false;
     }
 
@@ -74,15 +50,12 @@ class App extends Component {
       id: nanoid(),
     };
 
-    this.setState(({ contacts }) => ({
-      contacts: [...contacts, newContact],
-    }));
+    setContacts(prevContacts => [...prevContacts, newContact]);
 
     return true;
   };
 
-  getFilteredContacts = () => {
-    const { contacts, filter } = this.state;
+  const getFilteredContacts = () => {
     const normalizedFilter = filter.toLowerCase();
 
     return contacts.filter(({ name }) =>
@@ -90,28 +63,25 @@ class App extends Component {
     );
   };
 
-  handleDelete = contactToRemoveId => {
-    this.setState(({ contacts }) => ({
-      contacts: contacts.filter(
+  const handleDelete = contactToRemoveId => {
+    setContacts(prevContacts =>
+      prevContacts.filter(
         currentContact => currentContact.id !== contactToRemoveId
-      ),
-    }));
+      )
+    );
   };
 
-  render() {
-    const filteredContacts = this.getFilteredContacts();
-    const { filter } = this.state;
+  const filteredContacts = getFilteredContacts();
 
-    return (
-      <Layout>
-        <MainTitle title="Phonebook" />
-        <ContactForm onSubmit={this.handleAddContact} />
-        <SubTitle title="Contacts" />
-        <Filter value={filter} onChange={this.handleSearchInputChange} />
-        <ContactList contacts={filteredContacts} onDelete={this.handleDelete} />
-      </Layout>
-    );
-  }
-}
+  return (
+    <Layout>
+      <MainTitle title="Phonebook" />
+      <ContactForm onSubmit={handleAddContact} />
+      <SubTitle title="Contacts" />
+      <Filter value={filter} onChange={handleSearchInputChange} />
+      <ContactList contacts={filteredContacts} onDelete={handleDelete} />
+    </Layout>
+  );
+};
 
 export default App;

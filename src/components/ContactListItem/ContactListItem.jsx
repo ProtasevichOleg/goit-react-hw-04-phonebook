@@ -1,5 +1,5 @@
 // ContactListItem.jsx
-import React from 'react';
+
 import PropTypes from 'prop-types';
 import { Item, DeleteButton } from './ContactListItem.styled';
 
